@@ -1,0 +1,90 @@
+@import '~antd/dist/antd.css';
+
+
+.div {
+  display: block;
+}
+
+.detail-comment {
+  display: block;
+  list-style-type: disc;
+  -webkit-margin-before: 1em;
+  -webkit-margin-after: 1em;
+  -webkit-margin-start: 0px;
+  -webkit-margin-end: 0px;
+  -webkit-padding-start: 40px;
+}
+
+.detail-comment-input{
+  padding: right 40px;
+}
+
+
+.detail-comment-left{
+  text-align : left
+}
+
+
+.c-create-time {
+  margin-left: 10px;
+  color: #777;
+  font-size: 14px;
+}
+
+.middle{
+  display:flex;/*Flex布局*/
+  display: -webkit-flex; /* Safari */
+  align-items:baseline;/*指定垂直居中*/
+}
+
+.user-name {
+  margin-left: 10px;
+  color: #406599;
+  cursor: pointer;
+}
+
+.customPanelStyle {
+  background: #f7f7f7;
+  border-Radius: 4;
+  margin-Bottom: 24;
+  border: 0;
+  overflow: hidden;
+  float: left;
+  text-align: left;
+};
+.demo-loadmore-list {
+  min-height: 350px;
+}
+.shrink {
+  color: rgba(0, 0, 0, 0.45) !important;
+  font-size: 13px !important;
+  line-height: 22px !important;
+  margin-bottom: 15px;
+}
+
+
+.reply-background{
+  background-color: rgb(250, 249, 249);
+  width: 100%;
+  /* margin-left: 100px; */
+}
+
+#comment .c-header {
+  position: relative !important;
+  margin-bottom: 20px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+
+.c-header> {
+  font: 22px/24px Georgia !important;
+  color: #f85959 !important;
+}
+ .c-header>em {
+  font: 22px/24px Georgia !important;
+  color: #f85959 !important;
+}
+.reply_detail {
+  text-align : left;
+  margin-left: 15px;
+}
