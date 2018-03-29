@@ -51,9 +51,9 @@ class ShowTime extends Component {
 
   render() {
     const text = this.timeText();
-    return <div>
+    return <a style={{marginLeft:'10px'}}>
       {text}
-    </div>
+    </a>
   }
 }
 export default ShowTime;

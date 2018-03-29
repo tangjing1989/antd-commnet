@@ -1,156 +1,187 @@
 import React, { Component } from 'react';
 import '../App.css';
-import {  Row, Col, List } from 'antd';
+import { Row, Col, List, Input, Icon, Avatar, Form, message } from 'antd';
 import ShowTime from './time'
-import CommentInput from './3LevelInput'
 import axios from 'axios';
+import SubReply from './SubReply'
 
-class reply extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loadMore: false,
-      showLoadingMore: true,
-      targetSubType: '2',
-      data: [],
-      commentId: '',
-      showList: 'none',
-      showReply: 'none',
-      replyCount: 0,
-      pageNum: 1,
-      pageSize: 5,
-      total:0,
-      replyTotal:0,
+
+
+const Search = Input.Search;
+const FormItem = Form.Item;
+const IconText = ({ type, text }) => (
+    <span>
+        <Icon type={type} style={{ marginRight: 8 }} />
+        {text}
+    </span>
+);
+
+class Reply extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            appInfo: { appId: '', topicId: '', topicType: '', },
+            userInfo: { userId: '', nickName: '', avatar: '', },
+            commentId: '',
+            pageNum: 1,
+            pageSize: 5,
+            data: [],
+            showReply: 'none',
+
+        }
     }
-  }
-
-  //获取回复列表    
-  queryReplys () {
-    var params = new URLSearchParams();
-    params.append("commentId", this.state.commentId);
-    params.append("userId", this.state.userId);
-    params.append("token", this.state.token);
-    params.append("pageNum", this.state.pageNum);
-    params.append("pageSize", this.state.pageSize);
-    axios.post('/replyInfo/queryReplyInfoList', params)
-      .then(res => {
-        if(res.data.data)
+    componentDidMount = () => {
         this.setState({
-          data: res.data.data.list,
-          total:res.data.data.total,
-          loading: false
-        });
-      },()=>{});
-  }
+            commentId: this.props.commentId,
+            appInfo: this.props.appInfo,
+            userInfo: this.props.userInfo,
+        }, () => {
+            this.queryReplys();
+        })
+    }
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.showIndex != this.props.showIndex) {
+            if (nextProps.showIndex == this.props.commentId) {
+                this.setState({ showReply: 'block', }, () => {
+                    console.log(this.state.showReply);
+                });
+            }
+            else
+                this.setState({ showReply: 'none', }, () => {
+                    console.log(this.state.showReply);
+                });
+        }
+    }
 
 
-  _showReply(event) {
-    if (this.state.showReply === 'none')
-      this.setState({ showReply: 'block' });
-    else this.setState({ showReply: 'none' });
-  }
 
-  componentDidMount = () => {
-    this.setState({
-      token: this.props.token,
-      userId: this.props.userId,
-      commentId: this.props.id,
-      data: !this.props.replyInfos ? [] : this.props.replyInfos,
-      showList: !this.props.replyInfos ? 'none' : 'block',
-      total:!this.props.replyCount? 0:this.props.replyCount,
-      replyTotal:!this.props.replyCount? 0:this.props.replyCount,
-    })
-  }
+    _handleSupport(value) {
+
+    }
+
+    _handleOppose(value) {
+
+    }
 
 
-  componentWillReceiveProps(nextProps) {
-    if(nextProps===this.props){
-      console.log(11111111);
-    this.setState({
-      token: nextProps.token,
-      userId: nextProps.userId,
-      commentId: nextProps.id,
-      data: !nextProps.replyInfos ? [] : nextProps.replyInfos,
-      showList: !nextProps.replyInfos ? 'none' : 'block',
-      replyTotal:!this.props.replyCount? 0:this.props.replyCount,
-    },()=>(
-      this.queryReplys((res)=>{})
-    ))}
+
+    //获取回复列表    
+    queryReplys() {
+        var params = new URLSearchParams();
+        params.append("commentId", this.state.commentId);
+        params.append("userId", this.state.userInfo.userId);
+        params.append("token", this.state.appInfo.token);
+        params.append("pageNum", this.state.pageNum);
+        params.append("pageSize", this.state.pageSize);
+        axios.post('/replyInfo/queryReplyInfoList', params)
+            .then(res => {
+                if (res.data.data)
+                    this.setState({
+                        data: res.data.data.list,
+                        total: res.data.data.total,
+                        loading: false
+                    });
+            }, () => { });
+    }
+
+
+
+
+    _handleContentSubmit(value) {
+        // this.props.ChangeLoad(true, '数据保存中...');
+        var params = new URLSearchParams();
+        params.append("token", this.state.appInfo.token);
+        params.append("commentId", this.props.commentId)
+
+        params.append("userId", this.state.userInfo.userId);
+        params.append("nickName", this.state.userInfo.nickName);
+        params.append("avatar", this.state.userInfo.avatar);
+        // params.append("toReplyId", this.props.commentId);
+        params.append("toReplyUid", this.props.commentUser);
+
+        params.append("content", value);
+
+        axios.post('/replyInfo/saveReplyInfo', params)
+            .then(res2 => {
+                if (res2.data.code === 0) {
+                    this.setState({
+                        loading: false,
+                        value: ''
+                    }, () => {
+                        // this.props.ChangeLoad(false, '');
+                        this.queryReplys();
+                        message.success(res2.data.message);
+                    });
+                }
+                else {
+                    // this.props.ChangeLoad(false, '');
+                    message.error(res2.data.message);
+                }
+            });
+    }
+
+
+    onChange(event) {
+        this.setState({ value: event.target.value });
+    }
+
+
+
+
+    _handleExpend(event) {
+        if (this.state.showReply === 'none') this.setState({ showReply: 'block' })
+        else this.setState({ showReply: 'none' })
+    }
+
+
+
+
+
+    render() {
+        return (
+            <div >
+                <div>{this.props.content}</div>
+                <div style={{ display: this.state.showReply }}>
+                    <div  >
+                        <Search value={this.state.value} onChange={this.onChange.bind(this)} placeholder="请输入您的评论" enterButton="评论" size="default" onSearch={this._handleContentSubmit.bind(this)} />
+                    </div>
+                    <div style={{ marginTop: '10px', marginLeft: '10px' }}>
+                        <List
+                            itemLayout="horizontal"
+                            size="small"
+                            split={false}
+                            dataSource={this.state.data}
+                            renderItem={item => ((
+                                <List.Item>
+                                    <List.Item.Meta
+                                        avatar={<Avatar src={item.userHeadPortrait} />}
+                                        title={
+                                            <div>{item.userNickName}<ShowTime time={item.createTime} />
+                                                <li style={{ float: 'right', marginLeft: '20px', 'listStyle': 'none' }}>
+                                                    <IconText type="message" text={item.replyCount} />
+                                                </li>
+                                                <li style={{ float: 'right', marginLeft: '20px', 'listStyle': 'none' }} onClick={this._handleOppose.bind(this, item.id)}  >
+                                                    <IconText type={item.oppose === true ? 'dislike' : 'dislike-o'} text={item.opposeCount} />
+                                                </li>
+                                                <li style={{ float: 'right', marginLeft: '20px', 'listStyle': 'none' }} onClick={this._handleSupport.bind(this, item.id)}>
+                                                    <IconText type={item.support === true ? 'like' : 'like-o'} text={item.supportCount} />
+                                                </li>
+                                            </div>}
+                                        description={<SubReply key={item.id}
+                                            token={this.state.appInfo.token}
+                                            commentId={item.id}
+                                            content={item.content}
+                                            appInfo={this.state.appInfo}
+                                            userInfo={this.state.userInfo}
+                                            commentUser={item.userId}
+                                        />} />
+                                </List.Item>
+                            ))}
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 }
-
-
-  render() {
-    var me = this;
-
-    const  pagination ={
-      pageSize: this.state.pageSize,
-      current: this.state.pageNum,
-      total: this.state.total,
-      onChange: ((res1) => { 
-          this.setState({pageNum: res1 },()=>{this.queryReplys((res2)=>{}) })
-      }),
-    };
-
-
-    
-    return (
-      <div className='reply-background detail-comment-left' >
-
-        {/* {this.state.replyTotal >0 ?
-        <a className="shrink" onClick={this._showReply.bind(me)}>
-          {this.state.showReply === 'none' ? '展开'+this.state.replyTotal+'条回复' : '收起'+this.state.replyTotal+'条回复'}
-        </a>:''} */}
-        <a className="shrink" onClick={this._showReply.bind(me)}>
-          {this.state.showReply === 'none' ? '展开'+this.state.replyTotal+'条回复' : '收起'+this.state.replyTotal+'条回复'}
-        </a>
-        <div style={{ display: this.state.showReply }} >
-          <Row style={{ width: '100%'}} >
-            <Col >
-              <List
-                itemLayout="vertical"
-                size="small"
-                split={false}
-                // loadMore={loadMore}
-                pagination={pagination}
-                dataSource={this.state.data}
-                renderItem={item => ((
-                  <List.Item
-                    key={item.title}
-                  >
-                    <List.Item.Meta
-                      title={
-                        <ul className="ant-list-item-action " >
-                          <span className="ant-avatar ant-avatar-circle ant-avatar-image">
-                           <img src={item.userHeadPortrait} alt="" /></span>
-                          <li><a>{item.userNickName}</a></li>
-                          <li>@{item.toReplyUid}</li>
-                          <li><ShowTime time={item.createTime} /></li>
-                          <li>{item.content}</li>
-                          <li> 
-                            <CommentInput
-                              item={item}
-                              token={this.state.token}
-                              query={this.queryReplys.bind(this)}
-
-                              userId={this.state.userId}
-                              appId={this.state.appId}
-                              topicId={this.state.topicId}
-                              targetSubType={2}
-                              topicType={this.state.topicType}
-                              targetId={this.props.id}
-                              oprId={item.id}
-                              type={1}
-                          />
-                        </li>
-                        </ul>}
-                    />
-                  </List.Item>
-                ))}
-              />
-            </Col>
-          </Row>
-        </div>
-      </div>);
-  }
-}
-export default reply;
+export default Reply;
